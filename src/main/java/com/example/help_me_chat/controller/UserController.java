@@ -83,8 +83,10 @@ public class UserController {
         ChangePwdResponse response = new ChangePwdResponse();
         boolean success = userService.changePassword(request);
         if (success) {
+            response.setCode(200);
             response.setMessage("密码修改成功");
         } else {
+            response.setCode(500);
             response.setMessage("旧密码错误或用户不存在");
         }
         return response;
