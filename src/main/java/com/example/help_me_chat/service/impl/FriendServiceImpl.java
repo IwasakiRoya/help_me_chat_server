@@ -72,4 +72,9 @@ public class FriendServiceImpl extends ServiceImpl<FriendMapper, Friend> impleme
     public List<Friend> getFriendList(String myId) {
         return friendMapper.selectByMyId(myId);
     }
+
+    @Override
+    public FriendRequestEntity getFriendRequestById(String requestId) {
+        return friendRequestMapper.selectById(requestId);
+    }
 }

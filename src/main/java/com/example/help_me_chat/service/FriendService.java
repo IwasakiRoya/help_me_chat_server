@@ -20,4 +20,7 @@ public interface FriendService extends IService<Friend> {
 
     // 获取好友列表
     List<Friend> getFriendList(String myId);
+
+    // 根据ID获取好友请求
+    FriendRequestEntity getFriendRequestById(String requestId);
 }

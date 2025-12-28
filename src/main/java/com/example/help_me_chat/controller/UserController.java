@@ -7,6 +7,7 @@ import com.example.help_me_chat.model.request.LoginRequest;
 import com.example.help_me_chat.model.response.ChangePwdResponse;
 import com.example.help_me_chat.model.response.UserResponse;
 import com.example.help_me_chat.service.UserService;
+import com.example.help_me_chat.util.AuthUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,6 +22,9 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private AuthUtil authUtil;
 
     // 登录
     @PostMapping("/login")
@@ -59,17 +63,32 @@ public class UserController {
 
     // 获取用户信息
     @GetMapping("/info")
-    public BaseResponse<User> getUserInfo(@RequestHeader("Authorization") String token) {
-        // 简化：根据Token查询用户（后续替换为JWT解析）
-        // 临时实现：根据用户名查询（实际应解析Token中的userId）
-        User user = userService.list().get(0); // 临时取第一个用户
-        return BaseResponse.success(user);
+    public BaseResponse<User> getUserInfo(@RequestHeader("Authorization") String token, String userId) {
+        User user = authUtil.getUserByToken(token);
+        if (user == null) {
+            return BaseResponse.error("用户未登录或Token无效");
+        }
+        if (userId.equals("useToken")) {
+            return BaseResponse.success(user);
+        }
+        User byId = userService.getById(userId);
+        if (byId != null) {
+            return BaseResponse.success(byId);
+        } else {
+            return BaseResponse.error("用户不存在");
+        }
     }
 
     // 更新用户信息
     @PutMapping("/info")
-    public BaseResponse<Void> updateUserInfo(@RequestHeader("Authorization") String token, @RequestBody User user) {
-        boolean success = userService.updateUserInfo(user);
+    public BaseResponse<Void> updateUserInfo(@RequestHeader("Authorization") String token, @RequestBody User updatedUser) {
+        User user = authUtil.getUserByToken(token);
+        if (user == null) {
+            return BaseResponse.error("用户未登录或Token无效");
+        }
+        // 确保只能更新自己的信息
+        updatedUser.setUserId(user.getUserId());
+        boolean success = userService.updateUserInfo(updatedUser);
         if (success) {
             return BaseResponse.success();
         } else {
@@ -80,6 +99,15 @@ public class UserController {
     // 修改密码
     @PostMapping("/changePwd")
     public ChangePwdResponse changePassword(@RequestHeader("Authorization") String token, @RequestBody ChangePwdRequest request) {
+        User user = authUtil.getUserByToken(token);
+        if (user == null) {
+            ChangePwdResponse response = new ChangePwdResponse();
+            response.setCode(500);
+            response.setMessage("用户未登录或Token无效");
+            return response;
+        }
+        // 设置用户ID以确保修改正确的用户密码
+        request.setUserId(user.getUserId());
         ChangePwdResponse response = new ChangePwdResponse();
         boolean success = userService.changePassword(request);
         if (success) {
@@ -95,6 +123,10 @@ public class UserController {
     // 搜索用户
     @GetMapping("/search")
     public BaseResponse<User> searchUser(@RequestHeader("Authorization") String token, @RequestParam("keyword") String keyword) {
+        User currentUser = authUtil.getUserByToken(token);
+        if (currentUser == null) {
+            return BaseResponse.error("用户未登录或Token无效");
+        }
         User user = userService.searchUser(keyword);
         return BaseResponse.success(user);
     }
@@ -102,8 +134,11 @@ public class UserController {
     // 退出登录
     @PostMapping("/logout")
     public BaseResponse<Void> logout(@RequestHeader("Authorization") String token) {
-        // 简化：清空Token
-        User user = userService.list().get(0);
+        User user = authUtil.getUserByToken(token);
+        if (user == null) {
+            return BaseResponse.error("用户未登录或Token无效");
+        }
+        // 清空Token
         user.setToken("");
         userService.updateById(user);
         return BaseResponse.success();

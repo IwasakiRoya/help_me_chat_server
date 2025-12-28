@@ -19,4 +19,7 @@ public interface UserService extends IService<User> {
 
     // 更新用户信息
     boolean updateUserInfo(User user);
+
+    // 根据Token查询用户
+    User getUserByToken(String token);
 }

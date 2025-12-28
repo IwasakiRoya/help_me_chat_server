@@ -71,4 +71,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public boolean updateUserInfo(User user) {
         return userMapper.updateById(user) > 0;
     }
+
+    @Override
+    public User getUserByToken(String token) {
+        return userMapper.selectByToken(token);
+    }
 }
