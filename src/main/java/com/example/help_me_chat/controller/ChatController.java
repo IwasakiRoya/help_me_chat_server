@@ -81,8 +81,9 @@ public class ChatController {
         return BaseResponse.success(list);
     }
 
-    // 获取聊天列表
-    @GetMapping("/list")
+
+    // 核心修复：添加 produces = "application/json;charset=UTF-8"
+    @GetMapping(value = "/list", produces = "application/json;charset=UTF-8")
     public BaseResponse<List<ChatSummary>> getChatList(@RequestHeader("Authorization") String token) {
         User user = authUtil.getUserByToken(token);
         if (user == null) {
@@ -90,5 +91,33 @@ public class ChatController {
         }
         List<ChatSummary> list = chatService.getChatList(user.getUserId());
         return BaseResponse.success(list);
+    }
+
+    /**
+     * 标记指定时间戳之前的所有消息为已读（核心接口）
+     * @param token 用户令牌
+     * @param friendId 好友ID
+     * @param lastRenderedTimestamp 前端最新已渲染消息时间戳
+     * @return 标记结果
+     */
+    @GetMapping("/markAsRead")
+    public BaseResponse<Void> markChatMessagesAsRead(
+            @RequestHeader("Authorization") String token,
+            @RequestParam("friendId") String friendId,
+            @RequestParam("lastRenderedTimestamp") long lastRenderedTimestamp
+    ) {
+        // 1. 校验用户登录状态
+        User user = authUtil.getUserByToken(token);
+        if (user == null) {
+            return BaseResponse.error("用户未登录或Token失效");
+        }
+
+        // 2. 调用Service层标记已读
+        boolean success = chatService.markMessagesAsRead(user.getUserId(), friendId, lastRenderedTimestamp);
+        if (success) {
+            return BaseResponse.success();
+        } else {
+            return BaseResponse.error("标记已读失败");
+        }
     }
 }

@@ -25,4 +25,5 @@ public interface ChatService extends IService<ChatMessage> {
 
     public List<ChatMessage> selectAllHistoryBetweenUsers(String userId, String friendId);
 
+    boolean markMessagesAsRead(String userId, String friendId, long lastRenderedTimestamp);
 }
