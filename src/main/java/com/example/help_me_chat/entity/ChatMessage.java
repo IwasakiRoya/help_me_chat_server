@@ -32,9 +32,14 @@ public class ChatMessage implements Serializable {
     private Integer status;      // 消息状态（0=成功，1=思考中，2=失败；前端：status）
 
     @TableField("user_id")
-    private String userId;       // 发送者ID（前端未定义，但后端需要）
+    private String userId;       // 发送者ID（前端：userId）
+
+    @TableField("msg_type")
+    private Integer msgType;     // 消息内容类型（1=文本，2=图片；前端：msgType）
 
     // 前端常量映射
+    public static final int MSG_TYPE_TEXT = 1;
+    public static final int MSG_TYPE_IMAGE = 2;
     public static final int TYPE_SENT = 1;
     public static final int TYPE_RECEIVED = 0;
     public static final int STATUS_SUCCESS = 0;

@@ -1,4 +1,10 @@
 spring:
+  # 文件上传配置
+  servlet:
+    multipart:
+      max-file-size: 10MB          # 单个文件最大大小
+      max-request-size: 20MB       # 单次请求最大大小
+      enabled: true
   # 数据库配置（核心修复）
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -37,3 +43,11 @@ server:
     context-path: / # 上下文路径（默认）
   tomcat:
     uri-encoding: UTF-8 # 确保Tomcat URI编码为UTF-8（新增）
+
+# 自定义配置：文件存储路径和访问前缀（修改后）
+file:
+  upload:
+    # 项目根目录下的 uploads/chat/images/（相对路径，Git 可追踪）
+    path: ./uploads/chat/images/
+    # 前端访问图片的 URL 前缀（保持不变，与 WebConfig 映射一致）
+    access-prefix: http://10.0.2.2:8080/images/

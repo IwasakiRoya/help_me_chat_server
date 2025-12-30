@@ -29,6 +29,10 @@ public class ChatServiceImpl extends ServiceImpl<ChatMessageMapper, ChatMessage>
         if (message.getFriendId() == null || message.getUserId() == null) {
             return false;
         }
+        // 如果msgType未设置，默认设为文本类型
+        if (message.getMsgType() == null) {
+            message.setMsgType(ChatMessage.MSG_TYPE_TEXT);
+        }
         return chatMessageMapper.insert(message) > 0;
     }
 

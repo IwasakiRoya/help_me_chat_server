@@ -23,7 +23,7 @@ public interface ChatMessageMapper extends BaseMapper<ChatMessage> {
      * @param pageSize 每页条数
      * @return 历史消息列表
      */
-    @Select("SELECT * FROM messages WHERE ((user_id = #{userId} AND friend_id = #{friendId}) OR (user_id = #{friendId} AND friend_id = #{userId})) AND timestamp < #{lastTimestamp} ORDER BY timestamp DESC LIMIT #{pageSize}")
+    @Select("SELECT id, friend_id, content, type, timestamp, status, user_id, msg_type FROM messages WHERE ((user_id = #{userId} AND friend_id = #{friendId}) OR (user_id = #{friendId} AND friend_id = #{userId})) AND timestamp < #{lastTimestamp} ORDER BY timestamp DESC LIMIT #{pageSize}")
     List<ChatMessage> selectHistoryBeforeTimestamp(
             @Param("userId") String userId,
             @Param("friendId") String friendId,
@@ -37,7 +37,7 @@ public interface ChatMessageMapper extends BaseMapper<ChatMessage> {
      * @param lastTimestamp 最后一次拉取的时间戳
      * @return 新增消息列表
      */
-    @Select("SELECT * FROM messages WHERE ((user_id = #{userId} AND friend_id = #{friendId}) OR (user_id = #{friendId} AND friend_id = #{userId})) AND timestamp > #{lastTimestamp} ORDER BY timestamp ASC")
+    @Select("SELECT id, friend_id, content, type, timestamp, status, user_id, msg_type FROM messages WHERE ((user_id = #{userId} AND friend_id = #{friendId}) OR (user_id = #{friendId} AND friend_id = #{userId})) AND timestamp > #{lastTimestamp} ORDER BY timestamp ASC")
     List<ChatMessage> selectHistoryBetweenUsers(
             @Param("userId") String userId,
             @Param("friendId") String friendId,
@@ -49,7 +49,7 @@ public interface ChatMessageMapper extends BaseMapper<ChatMessage> {
      * @param friendId 好友ID
      * @return 完整聊天记录列表
      */
-    @Select("SELECT * FROM messages WHERE ((user_id = #{userId} AND friend_id = #{friendId}) OR (user_id = #{friendId} AND friend_id = #{userId})) ORDER BY timestamp ASC")
+    @Select("SELECT id, friend_id, content, type, timestamp, status, user_id, msg_type FROM messages WHERE ((user_id = #{userId} AND friend_id = #{friendId}) OR (user_id = #{friendId} AND friend_id = #{userId})) ORDER BY timestamp ASC")
     List<ChatMessage> selectAllHistoryBetweenUsers(
             @Param("userId") String userId,
             @Param("friendId") String friendId);
@@ -60,7 +60,7 @@ public interface ChatMessageMapper extends BaseMapper<ChatMessage> {
      * @param lastTimestamp 最后一次拉取的时间戳
      * @return 新增消息列表
      */
-    @Select("SELECT * FROM messages WHERE friend_id = #{friendId} AND timestamp > #{lastTimestamp} ORDER BY timestamp ASC")
+    @Select("SELECT id, friend_id, content, type, timestamp, status, user_id, msg_type FROM messages WHERE friend_id = #{friendId} AND timestamp > #{lastTimestamp} ORDER BY timestamp ASC")
     List<ChatMessage> selectHistoryByFriendId(
             @Param("friendId") String friendId,
             @Param("lastTimestamp") long lastTimestamp);
@@ -71,7 +71,7 @@ public interface ChatMessageMapper extends BaseMapper<ChatMessage> {
      * @param lastTimestamp 最后阅读时间戳
      * @return 未读消息列表
      */
-    @Select("SELECT * FROM messages WHERE friend_id = #{userId} AND status = 0 AND timestamp > #{lastTimestamp}")
+    @Select("SELECT id, friend_id, content, type, timestamp, status, user_id, msg_type FROM messages WHERE friend_id = #{userId} AND status = 0 AND timestamp > #{lastTimestamp}")
     List<ChatMessage> selectUnreadMessagesForUser(
             @Param("userId") String userId,
             @Param("lastTimestamp") long lastTimestamp);
@@ -83,7 +83,7 @@ public interface ChatMessageMapper extends BaseMapper<ChatMessage> {
      * @param lastTimestamp 最后阅读时间戳
      * @return 未读消息列表
      */
-    @Select("SELECT * FROM messages WHERE ((user_id = #{friendId} AND friend_id = #{userId}) OR (user_id = #{userId} AND friend_id = #{friendId})) AND status = 0 AND timestamp > #{lastTimestamp}")
+    @Select("SELECT id, friend_id, content, type, timestamp, status, user_id, msg_type FROM messages WHERE ((user_id = #{friendId} AND friend_id = #{userId}) OR (user_id = #{userId} AND friend_id = #{friendId})) AND status = 0 AND timestamp > #{lastTimestamp}")
     List<ChatMessage> selectUnreadMessagesBetweenUsers(
             @Param("userId") String userId,
             @Param("friendId") String friendId,
@@ -95,7 +95,7 @@ public interface ChatMessageMapper extends BaseMapper<ChatMessage> {
      * @param lastTimestamp 最后阅读时间戳
      * @return 未读消息列表
      */
-    @Select("SELECT * FROM messages WHERE friend_id = #{friendId} AND status = 0 AND timestamp > #{lastTimestamp}")
+    @Select("SELECT id, friend_id, content, type, timestamp, status, user_id, msg_type FROM messages WHERE friend_id = #{friendId} AND status = 0 AND timestamp > #{lastTimestamp}")
     List<ChatMessage> selectUnreadMessages(
             @Param("friendId") String friendId,
             @Param("lastTimestamp") long lastTimestamp);
@@ -125,7 +125,8 @@ public interface ChatMessageMapper extends BaseMapper<ChatMessage> {
             "        END as other_user_id, " +
             "        content, " +
             "        timestamp, " +
-            "        id " +
+            "        id, " +
+            "        msg_type " +
             "    FROM messages " +
             "    WHERE (user_id = #{userId} OR friend_id = #{userId}) " +
             "    ) latest_msg " +
