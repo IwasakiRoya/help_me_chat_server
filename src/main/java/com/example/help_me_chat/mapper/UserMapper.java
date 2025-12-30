@@ -13,7 +13,7 @@ public interface UserMapper extends BaseMapper<User> {
     User selectByUsername(@Param("username") String username);
 
     // 根据手机号/昵称搜索用户
-    @Select("SELECT * FROM users WHERE phone_number = #{keyword} OR nickname LIKE CONCAT('%',#{keyword},'%')")
+    @Select("SELECT * FROM users WHERE user_id = #{keyword} OR phone_number = #{keyword} OR nickname LIKE CONCAT('%',#{keyword},'%')")
     User selectByKeyword(@Param("keyword") String keyword);
 
     // 根据token查询用户
