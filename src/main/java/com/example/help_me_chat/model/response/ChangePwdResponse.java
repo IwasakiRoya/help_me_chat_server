@@ -4,5 +4,6 @@ import lombok.Data;
 
 @Data
 public class ChangePwdResponse {
+    private int code;
     private String message;
 }

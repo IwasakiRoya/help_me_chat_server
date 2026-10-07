@@ -1,29 +1,39 @@
 spring:
-  # ?????
+  # 数据库配置（核心修复）
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://192.168.21.78:3306/help_me_chat?useUnicode=true&characterEncoding=utf8mb4&useSSL=false&serverTimezone=Asia/Shanghai
+    # 修复1：将 characterEncoding=utf8mb4 改为 characterEncoding=utf8
+    # 修复2：新增 allowPublicKeyRetrieval=true 解决 MySQL 8.x 连接权限问题
+    # 修复3：新增 rewriteBatchedStatements=true 提升批量操作性能（可选）
+    url: jdbc:mysql://192.168.21.78:3306/help_me_chat?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&rewriteBatchedStatements=true
     username: ikroya
     password: Cug283317!
-  # Web??
+  # Web配置（优化CORS安全性）
   web:
     cors:
-      allowed-origins: "*" # ????????????????
-      allowed-methods: "*"
-      allowed-headers: "*"
+      allowed-origins: "*" # 开发环境允许所有来源，生产环境建议指定具体域名（如 http://10.0.2.2:8080）
+      allowed-methods: GET,POST,PUT,DELETE,OPTIONS # 明确允许的方法，比*更安全
+      allowed-headers: Authorization,Content-Type # 明确允许的请求头，比*更安全
+      allow-credentials: true # 允许携带Cookie/Token（前端跨域请求需要）
 
-# MyBatis-Plus??
+# MyBatis-Plus配置（保留并优化）
 mybatis-plus:
   configuration:
-    map-underscore-to-camel-case: true # ??????????
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl # ??SQL???????
+    map-underscore-to-camel-case: true # 下划线转驼峰（必备）
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl # 打印SQL（开发环境用，生产环境建议关闭）
+    call-setters-on-nulls: true # 解决查询结果为null时字段不返回的问题（可选）
   global-config:
     db-config:
       logic-delete-field: deleted
       logic-delete-value: 1
       logic-not-delete-value: 0
-  mapper-locations: classpath:mapper/**/*.xml # Mapper.xml????
+  mapper-locations: classpath:mapper/**/*.xml # Mapper.xml文件路径
+  type-aliases-package: com.example.help_me_chat.model # 实体类包名（新增，简化XML中的类名）
 
-# ????
+# 服务器配置
 server:
   port: 8080
+  servlet:
+    context-path: / # 上下文路径（默认）
+  tomcat:
+    uri-encoding: UTF-8 # 确保Tomcat URI编码为UTF-8（新增）

@@ -1,18 +1,18 @@
 package com.example.help_me_chat.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 import java.io.Serializable;
 
 @Data
-@TableName("chat_read_position")
+@TableName("chat_read_position") // 仅保留表名注解，移除 @UniqueIndex
 public class ChatReadPosition implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @TableId("friend_id")
+    // 无单主键，仅保留业务字段（user_id + friend_id 联合唯一通过SQL建立）
+    @TableField("friend_id")
     private String friendId;       // 好友ID（前端：friendId）
 
     @TableField("last_read_msg_id")
@@ -21,7 +21,6 @@ public class ChatReadPosition implements Serializable {
     @TableField("last_read_time")
     private Long lastReadTime;     // 最后阅读时间戳（前端：lastReadTime）
 
-    // 核心补充：添加userId字段（数据库表中有，实体类缺失）
     @TableField("user_id")
     private String userId;         // 所属用户ID
 
